@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using SecretSanta;
+using SecretSanta.Exceptions;
 using SecretSanta.Models;
 
 namespace Tests.Tests
@@ -12,16 +13,33 @@ namespace Tests.Tests
     public class MatcherTest
     {
         [Test]
-        public void TestCanMatchAll()
+        public void CanMatchAllTest()
         {
             var participants = ParticipantFactory();
-            
             var matcher = new Matcher(participants);
             
             matcher.Match(false, true);
             Assert.IsTrue(matcher.Participants().All(p => p.Match != null));
         }
 
+        [Test]
+        public void ThrowsOnUnresolvedParticipantsTest()
+        {
+            var participants = ImpossibleToMatchParticipantFactory();
+            var matcher = new Matcher(participants);
+            Assert.Throws<UnresolvedMatchException>(() => matcher.Match(true, true));
+        }
+        
+        [Test]
+        public void ValidateUniqueMatchesTest()
+        {
+            var participants = ParticipantFactory();
+            var matcher = new Matcher(participants);
+            
+            matcher.Match();
+            Assert.DoesNotThrow(() => matcher.Match());
+        }
+        
         private static IEnumerable<Participant> ParticipantFactory()
         {
             var participantA = new Participant("A");
@@ -71,9 +89,32 @@ namespace Tests.Tests
                 participantB,
                 participantC,
                 participantD,
-                participantE
+                participantE,
+            };
+        }
+
+        private IEnumerable<Participant> ImpossibleToMatchParticipantFactory()
+        {
+            var participantA = new Participant("A");
+            var participantB = new Participant("B");
+            var participantC = new Participant("C");
+            
+            participantA.Excludes = new List<Participant>
+            {
+                participantC,
             };
             
+            participantB.Excludes = new List<Participant>
+            {
+                participantC,
+            };
+            
+            return new List<Participant>
+            {
+                participantA,
+                participantB,
+                participantC,
+            };
         }
     }
 }

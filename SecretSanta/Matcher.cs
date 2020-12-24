@@ -114,16 +114,6 @@ namespace SecretSanta
                 .Select(p => p.Match.Id)
                 .ToList();
             
-            // matchedParticipantGuids.All(m =>
-            // {
-            //     if (matchedParticipantGuids.Where(p => p.Equals(m)).ToList().Count() > 1)
-            //     {
-            //         throw new InvalidMatchException("Receiver matched to more than 1 participant");
-            //     }
-            //
-            //     return true;
-            // });
-            
             var diffChecker = new HashSet<Guid>();
             if (!matchedParticipantGuids.All(guid => diffChecker.Add(guid)))
             {

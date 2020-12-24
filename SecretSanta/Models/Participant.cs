@@ -13,10 +13,9 @@ namespace SecretSanta.Models
             Id = Guid.NewGuid();
             Name = name;
         }
-        public Guid Id { get; set; }
-        public string Name { get; set; }
+        public Guid Id { get; }
+        public string Name { get; }
         private Participant? match;
-        
         public IEnumerable<Participant>? Excludes { get; set; }
         
         public Participant? Match

@@ -1,6 +1,7 @@
 # secret-santa-matcher
 
 An attempt at providing a solution for https://github.com/Intracto/SecretSanta/issues/510
+
 This is the C# implementation of https://github.com/jorimvanhove/secret-santa-codechallenge-510
 
 # Functional requirements

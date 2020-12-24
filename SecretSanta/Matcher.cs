@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.ComponentModel.Design;
 using System.Linq;
 using System.Threading.Tasks;
@@ -23,8 +24,18 @@ namespace SecretSanta
         {
             return participants;
         }
+
+        public IEnumerable<Participant> MatchedParticipants()
+        {
+            return participants.Where(p => p.Match != null).ToImmutableList();
+        }
         
-        public List<Participant?> Receivers()
+        public IEnumerable<Participant> UnmatchedParticipants()
+        {
+            return participants.Where(p => p.Match == null).ToImmutableList();
+        }
+        
+        private List<Participant?> Receivers()
         {
             var matches = participants.Where(p => p.Match != null)
                 .Select(p=> p.Match)
@@ -32,7 +43,7 @@ namespace SecretSanta
 
             return participants.Except(matches).ToList();
         }
-
+        
         public void Match(bool shuffleParticipants = true, bool throwOnUnresolved = false, bool validateUniqueMatches = true)
         {
             TryMatchParticipants(participants, shuffleParticipants);

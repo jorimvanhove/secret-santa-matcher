@@ -14,54 +14,90 @@ namespace Tests
     {
         public static void Main(string[] args)
         {
-            int numberOfParticipants = 2500;
-            int maxAllowedNumberOfExcludes = 5;
-
-            // var optionSet = new OptionSet
-            // {
-            //     "Options:",
-            //     {"p|participants", "Number of participants to match", (int p) => { numberOfParticipants = p ; }},
-            //     {"e|excludes", "Max number of excludes per participant", (int e) => { maxAllowedNumberOfExcludes = e ; }},
-            // };
-            //
-            // optionSet.WriteOptionDescriptions(Console.Out);
-            //
-            // optionSet.Parse(args);
-
-            var participants = AddExcludes(ParticipantFactory(numberOfParticipants), maxAllowedNumberOfExcludes);
-            var matcher = new Matcher(participants);
-            
             var stopwatch = new Stopwatch();
+            int numberOfParticipants = 250;
+            int maxAllowedNumberOfExcludes = 4;
+            bool stressTest = false;
+            int iterations = 1;
             
-            stopwatch.Start();
-            matcher.Match();
-            stopwatch.Stop();
-            
-            Console.WriteLine("Matched participants:");
-            foreach (var matched in matcher.MatchedParticipants())
+            var optionSet = new OptionSet
             {
-                Console.WriteLine(matched.Name + " -> " + matched.Match.Name);
+                "Options:",
+                {"p|participants:", "Number of participants to match", (int p) => { numberOfParticipants = p ; }},
+                {"e|excludes:", "Max number of excludes per participant", (int e) => { maxAllowedNumberOfExcludes = e ; }},
+                {"s|stresstest", "", (s) => { stressTest = s != null; }},
+            };
+            
+            optionSet.WriteOptionDescriptions(Console.Out);
+            optionSet.Parse(args);
+
+            if (stressTest)
+            {
+                iterations = 200;
+                numberOfParticipants = 100;
+                maxAllowedNumberOfExcludes = 0;
             }
 
-            if (matcher.UnmatchedParticipants().Any())
+            for (int i = 0; i < iterations; i++)
             {
-                Console.WriteLine("Unmatched participants:");
-            
-                foreach (var matched in matcher.UnmatchedParticipants())
+                
+                if (stressTest)
                 {
-                    Console.WriteLine(matched.Name + " -> - ");
+                    numberOfParticipants = i * 100;
+                    maxAllowedNumberOfExcludes = i * i;
                 }
+                
+                var participants = AddExcludes(ParticipantFactory(numberOfParticipants), maxAllowedNumberOfExcludes);
+                var matcher = new Matcher(participants);
+            
+                stopwatch.Start();
+                matcher.Match();
+                stopwatch.Stop();
+
+                if (!stressTest)
+                {
+                    Console.WriteLine("Matched participants:");
+                    foreach (var matched in matcher.MatchedParticipants())
+                    {
+                        Console.WriteLine(matched.Name + " -> " + matched.Match.Name);
+                    }
+                    
+                    if (matcher.UnmatchedParticipants().Any())
+                    {
+                        Console.WriteLine("Unmatched participants:");
+            
+                        foreach (var matched in matcher.UnmatchedParticipants())
+                        {
+                            Console.WriteLine(matched.Name + " -> - ");
+                        }
+                    }
+                }
+                else
+                {
+                    Console.WriteLine("Matched {0} of {1}", matcher.MatchedParticipants().Count(), numberOfParticipants);
+                    if (matcher.UnmatchedParticipants().Any())
+                    {
+                        Console.WriteLine("Could not match {0} participants", matcher.UnmatchedParticipants().Count());
+                    }
+                }
+                
+                Console.WriteLine("Matching {0} with {1} excludes each took {2} ms", 
+                    numberOfParticipants, maxAllowedNumberOfExcludes, stopwatch.ElapsedMilliseconds);
+
+                for (int c = 0; c < 45; c++)
+                {
+                    Console.Write("-");
+                }
+                
+                Console.WriteLine();
             }
-            
-            
-            Console.WriteLine("This process used {0} ms for its computations", stopwatch.ElapsedMilliseconds);
         }
 
         private static IEnumerable<Participant> ParticipantFactory(int numberOfParticipants)
         {
             var participants = new List<Participant>();
             
-            for (var i = 0; i <= numberOfParticipants; i++)
+            for (var i = 0; i < numberOfParticipants; i++)
             {
                 participants.Add(new Participant("Test" + i));
             }
@@ -78,7 +114,7 @@ namespace Tests
             {
                 var excludes = new List<Participant>();
                 
-                for (var i = 0; i <= maxAllowedNumberOfExcludes; i++)
+                for (var i = 0; i < maxAllowedNumberOfExcludes; i++)
                 {
                     if (i == random.Next(maxAllowedNumberOfExcludes))
                     {

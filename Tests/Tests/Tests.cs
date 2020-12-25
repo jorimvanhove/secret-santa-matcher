@@ -21,6 +21,16 @@ namespace Tests.Tests
             matcher.Match(false, true);
             Assert.IsTrue(matcher.Participants().All(p => p.Match != null));
         }
+        
+        [Test]
+        public void CanMatchAnyTest()
+        {
+            var participants = ParticipantFactory();
+            var matcher = new Matcher(participants);
+            
+            matcher.Match();
+            Assert.IsTrue(matcher.Participants().Any(p => p.Match != null));
+        }
 
         [Test]
         public void ThrowsOnUnresolvedParticipantsTest()

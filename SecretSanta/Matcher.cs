@@ -68,7 +68,7 @@ namespace SecretSanta
             var toMatch = participantsToMatch.ToList();
             if (shuffleParticipants)
             {
-                toMatch.Shuffle();
+                toMatch = toMatch.Shuffle().ToList();
             }
             
             foreach (var participant in toMatch)
@@ -103,7 +103,7 @@ namespace SecretSanta
                     participant.Excludes.Any(e => e.Equals(receiversEnumerator.Current)))
                 {
                     receiversEnumerator.MoveNext();
-                    if (receiversEnumerator.Current.Equals(null))
+                    if (receiversEnumerator.Current == null)
                     {
                         continue;
                     }

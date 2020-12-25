@@ -37,17 +37,22 @@ namespace Tests
             matcher.Match();
             stopwatch.Stop();
             
-            Console.Title = "Matched participants:";
+            Console.WriteLine("Matched participants:");
             foreach (var matched in matcher.MatchedParticipants())
             {
                 Console.WriteLine(matched.Name + " -> " + matched.Match.Name);
             }
-            
-            Console.Title = "Unmatched participants:";
-            foreach (var matched in matcher.UnmatchedParticipants())
+
+            if (matcher.UnmatchedParticipants().Any())
             {
-                Console.WriteLine(matched.Name + " -> - ");
+                Console.WriteLine("Unmatched participants:");
+            
+                foreach (var matched in matcher.UnmatchedParticipants())
+                {
+                    Console.WriteLine(matched.Name + " -> - ");
+                }
             }
+            
             
             Console.WriteLine("This process used {0} ms for its computations", stopwatch.ElapsedMilliseconds);
         }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using Mono.Options;
@@ -13,8 +14,8 @@ namespace Tests
     {
         public static void Main(string[] args)
         {
-            int numberOfParticipants = 250;
-            int maxAllowedNumberOfExcludes = 4;
+            int numberOfParticipants = 2500;
+            int maxAllowedNumberOfExcludes = 5;
 
             // var optionSet = new OptionSet
             // {
@@ -30,8 +31,12 @@ namespace Tests
             var participants = AddExcludes(ParticipantFactory(numberOfParticipants), maxAllowedNumberOfExcludes);
             var matcher = new Matcher(participants);
             
+            var stopwatch = new Stopwatch();
+            
+            stopwatch.Start();
             matcher.Match();
-
+            stopwatch.Stop();
+            
             Console.Title = "Matched participants:";
             foreach (var matched in matcher.MatchedParticipants())
             {
@@ -43,6 +48,8 @@ namespace Tests
             {
                 Console.WriteLine(matched.Name + " -> - ");
             }
+            
+            Console.WriteLine("This process used {0} ms for its computations", stopwatch.ElapsedMilliseconds);
         }
 
         private static IEnumerable<Participant> ParticipantFactory(int numberOfParticipants)
@@ -74,9 +81,9 @@ namespace Tests
                     }
 
                     var exclude = participantsToProcess.Where(p => !p.Equals(participant))
-                        .Skip(random.Next(participantsToProcess.Count))
+                        .Skip(random.Next(participantsToProcess.Count - 1))
                         .Take(1)
-                        .Single();
+                        .SingleOrDefault();
                     
                     if (exclude != participant && !excludes.Any(x => x.Equals(exclude)))
                     {
@@ -88,7 +95,6 @@ namespace Tests
                 {
                     participant.Excludes = excludes;
                 }
-                
             }
             
             return participantsToProcess;
